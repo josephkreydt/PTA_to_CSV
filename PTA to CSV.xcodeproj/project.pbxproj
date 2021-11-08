@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7CDC7C27272D58F0003C31C4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 7CDC7C26272D58F0003C31C4 /* main.c */; };
+		7C80C10527367E8300D9C61D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C80C10427367E8300D9C61D /* main.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +23,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7C80C10427367E8300D9C61D /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		7CDC7C23272D58F0003C31C4 /* PTA to CSV */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "PTA to CSV"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7CDC7C26272D58F0003C31C4 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +57,7 @@
 		7CDC7C25272D58F0003C31C4 /* PTA to CSV */ = {
 			isa = PBXGroup;
 			children = (
-				7CDC7C26272D58F0003C31C4 /* main.c */,
+				7C80C10427367E8300D9C61D /* main.c */,
 			);
 			path = "PTA to CSV";
 			sourceTree = "<group>";
@@ -119,7 +119,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7CDC7C27272D58F0003C31C4 /* main.c in Sources */,
+				7C80C10527367E8300D9C61D /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

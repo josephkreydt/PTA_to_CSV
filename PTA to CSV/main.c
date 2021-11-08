@@ -14,125 +14,96 @@
    then you just need to replace spaces with commas
  - description is after_a_transaction_status_symbol and goes until EOL
  - comment is after_a_semi-colon and goes until EOL
- - stock amount is after_double_space and goes until end of dollar amount
+ - stock amount is after_double_space and goes until end of dollar amount or EOL
 */
-
-// Function to check for number
-int check_for_number(int input)
-{
-    // Convert input int to char so it can be passed into regexec function
-    const char c = input;
-    // Variable to store initial regex()
-    regex_t regex;
-     
-    // Variable for return type
-    int value;
-     
-    // Creation of regEx
-    // 48-57 are ASCII values representing 0-9
-    value = regcomp(&regex, "[48-57]", 0);
-     
-    // Comparing pattern "GeeksforGeeks" with
-    // string in reg
-    value = regexec(&regex, &c, 0, NULL, 0);
-    
-    // If pattern found
-    if (value == 0) {
-        printf("Pattern found.\n");
-    }
-    // If pattern not found
-    else if (value == REG_NOMATCH) {
-        printf("Pattern not found.\n");
-    }
-    // If error occured during Pattern
-    // matching
-    else {
-        printf("An error occured during regex pattern matching.\n");
-    }
-    
-    return value;
-}
-
-int determine_chunk_type(int c, int previous_c, int previous_c_2) {
-    int chunk_type;
-    int number = check_for_number(c);
-    if (number) {
-        /* if it's a number, it's either a date, amount/stock, or descr */
-        if (previous_c == 32 && previous_c_2 != 32) /* if previous char is a space, but one before that is not */ {
-            /* then it's a descr */
-            chunk_type = 2;
-        } else if (previous_c_2 == 32 && previous_c == 32) /* if previous 2 chars are spaces */ {
-            /* then it's an amount/stock */
-            chunk_type = 5;
-        } else /* if both previous chars are not spaces */ {
-            /* then it's a date */
-            chunk_type = 1;
-        }
-    } else {
-        /* if it's not a number, it's no chunk, descr, to account, from account, or comment */
-        chunk_type = 0;
-    }
-    
-    return chunk_type;
-}
 
 int main(int argc, const char * argv[]) {
     int c;
     int previous_c = 0;
-    int previous_c_2 = 0;
-    int chunk_type = 0;
-    /* 0 is no chunk
-       1 is date chunk
-       2 is descr chunk
-       3 is to account chunk
-       4 is from account chunk
-       5 is amount chunk
-       6 is comment chunk */
-    FILE *file;
-    file = fopen("/Users/joseph/Desktop/test.txt", "r");
-    if (file) {
-        while ((c = getc(file)) != EOF) {
-            chunk_type = determine_chunk_type(c, previous_c, previous_c_2);
-            switch(chunk_type) {
+    //char delimiter = ",";
+    int mode = 0;
+    // 0 = no mode
+    // 1 = comment mode
+    // 2 = description mode
+    // 3 = dollar mode
+    // 4 = stock mode
+
+    FILE *text_file;
+    FILE *csv_file;
+    text_file = fopen("/Users/joseph/Desktop/ledger.txt", "r");
+    csv_file = fopen("/Users/joseph/Desktop/ledger.csv", "w");
+    if (text_file) {
+        while ((c = getc(text_file)) != EOF) {
+            switch (mode) {
                 case 0:
-                    // check c value and determine which chunk type
+                    // no mode
+                    if (c == 32 && previous_c == 32) {
+                        // switch to stock mode
+                        mode = 4;
+                    } else if (c == 32 && previous_c == 42 /*asterisk*/){
+                        // switch to descr mode
+                        fprintf(csv_file, ",");
+                        mode = 2;
+                        //printf(c);
+                    } else if (c == 59 /*semi-colon*/) {
+                        // switch to comment mode
+                        mode = 1;
+                    } else if (c == 32 && previous_c != 10){
+                        fprintf(csv_file, ",");
+                    } else if (c == 32 && previous_c == 10 /*line feed*/) {
+                        //fprintf(csv_file, ",");
+                    } else if (c == 10 && previous_c == 10) {
+                        //fprintf(csv_file, "\n");
+                    } else if (c == 10 && previous_c == 32) {
+                        
+                    } else {
+                        fprintf(csv_file, "%c", c);
+                    }
                     break;
                 case 1:
-                    // handle date, when arrive at space or EOL change chunk to 0
+                    // comment mode
+                    if (c == 10 /*line feed*/) {
+                        mode = 0;
+                    } else {
+                        // uncomment following line to write comments
+                        //fprintf(csv_file, "%c", c);
+                    }
                     break;
                 case 2:
-                    // handle descr, when arrive at EOL change chunk to 0
+                    // description mode
+                    if (c == 10) {
+                        mode = 0;
+                        fprintf(csv_file, ",");
+                    } else {
+                        fprintf(csv_file, "%c", c);
+                    }
                     break;
                 case 3:
-                    // handle to account, when arrive at space or EOL change chunk to 0
+                    // dollar mode
+                    if (c == 10 || c == 32) {
+                        mode = 0;
+                        fprintf(csv_file, ",");
+                    } else {
+                        fprintf(csv_file, "%c", c);
+                    }
                     break;
                 case 4:
-                    // handle from account, when arrive at space or EOL change chunk to 0
-                    break;
-                case 5:
-                    // handle amount, when arrive at EOL change chunk to 0
-                    break;
-                case 6:
-                    // handle comment, when arrive at EOL change chunk to 0
+                    // stock mode
+                    if (c == 36 /*dollar sign*/) {
+                        fprintf(csv_file, "%c", c);
+                        mode = 3;
+                    } else {
+                        fprintf(csv_file, "%c", c);
+                    }
                     break;
                 default:
-                    printf("Error: invalid chunk type");
+                    fprintf(csv_file, "Error: invalid mode.");
             }
-        
-            previous_c_2 = previous_c;
             previous_c = c;
         }
-        fclose(file);
+        fclose(text_file);
+        fclose(csv_file);
     }
     
     return 0;
 }
-
-/*
-- Read character
-- If it is ;, then ignore chars until end of line
-- If it is int, then read as date and write to csv
-- If it is text following int, then read as descr and write to csv
-- If it is text following single space, then read as account and write to csv
-- If it is $ followed by two spaces, then read as amount and write to csv
-*/
